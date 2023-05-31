@@ -36,5 +36,10 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "axios": "^1.4.0",
+    "prop-types": "^15.8.1",
+    "react-spinners": "^0.13.8"
   }
 }

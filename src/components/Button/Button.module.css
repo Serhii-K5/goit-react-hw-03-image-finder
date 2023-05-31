@@ -1,0 +1,21 @@
+.button {
+  margin: 0 auto;
+  padding: 15px;
+  width: 200px;
+  border-radius: 5px;
+  background-color: rgba(0, 0, 255, 0.705);
+
+  border: 0;
+  color: #fff;
+  font-size: 18px;
+  font-weight: bold;
+
+  transition: color 300ms;
+  cursor: pointer;
+}
+
+.button:hover,
+.button:focus, 
+.button:active {
+  background-color: blue;
+}
