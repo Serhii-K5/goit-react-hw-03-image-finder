@@ -7,6 +7,7 @@ const PER_PAGE = 12;
 export const fetchImages = async (searchText, page) => {
   const response = await axios.get(`/?key=${API_KEY}&q=${searchText}&page=${page}&image_type=photo&orientation=horizontal&per_page=${PER_PAGE}`
   );
+  localStorage.setItem('totalHits', response.data.totalHits);
   return response.data.hits.map(image => {
     return {
       id: image.id,

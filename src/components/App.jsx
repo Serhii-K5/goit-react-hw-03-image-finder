@@ -17,33 +17,23 @@ export class App extends Component {
     isModalOpen: false,
     modalImg: '',
     modalAlt: '',
-  };
-
+  }; 
+  
   handleSubmit = async evt => {
     evt.preventDefault();
-    this.setState({ isLoading: true });
     const inputForSearch = evt.target.elements.inputForSearch;
-    if (inputForSearch.value.trim() === '') {
-      this.setState({ isLoading: false })
-      return alert("No data to search");
-    }
-    const response = await fetchImages(inputForSearch.value, 1);
+    if (inputForSearch.value.trim() === '') return;
     this.setState({
-      images: response,
-      isLoading: false,
       currentSearch: inputForSearch.value,
       page: 1,
+      isLoading: true,
     });
   };
 
   handleClickMore = async () => {
-    const response = await fetchImages(
-      this.state.currentSearch,
-      this.state.page + 1
-    );
     this.setState({
-      images: [...this.state.images, ...response],
-      page: this.state.page + 1,
+      page: this.state.page + 1,     
+      isLoading: true,
     });
   };
 
@@ -73,6 +63,44 @@ export class App extends Component {
     window.addEventListener('keydown', this.handleKeyDown);
   }
 
+  async componentDidUpdate(_, prevState) {  //_  -  заміна пустому prevProps
+    
+    if (this.state.currentSearch === prevState.currentSearch
+      && this.state.page === prevState.page) return;
+    
+    if (this.state.currentSearch !== prevState.currentSearch) {
+      if (this.state.currentSearch.trim() === '') {
+        this.setState({ isLoading: false })
+        return
+      } else {
+        this.setState({ isLoading: true }); 
+      }
+        
+      const response = await fetchImages(this.state.currentSearch, 1);
+      this.setState({
+        images: response,
+        isLoading: false,
+        page: 1,
+      });
+    }
+    
+    if (this.state.page !== prevState.page) {
+      const response = await fetchImages(
+        this.state.currentSearch,
+        this.state.page
+      );
+      this.setState({
+        images: [...this.state.images, ...response],
+        isLoading: false,
+      });
+    }
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('keydown', this.handleKeyDown);
+    localStorage.removeItem('totalHits');
+  }
+
   render() {
     return (
       <div className={cssApp.App}>
@@ -80,16 +108,18 @@ export class App extends Component {
           <div className={cssLoader.loader}>
             <Loader />
           </div>
-        ) : (
+          ) : (
           <React.Fragment>
             <Searchbar onSubmit={this.handleSubmit} />
             <ImageGallery
               onImageClick={this.handleImageClick}
               images={this.state.images}
             />
-            {this.state.images.length > 0 ? (
+            {this.state.images.length > 0 &&
+                Math.ceil(localStorage.getItem('totalHits') / 12) > this.state.page ? (
               <Button onClick={this.handleClickMore} />
             ) : null}
+              {/* <p>Сторінка {this.state.page} з {Math.ceil(localStorage.getItem('totalHits') / 12)} </p> */}
           </React.Fragment>
         )}
         {this.state.isModalOpen ? (
