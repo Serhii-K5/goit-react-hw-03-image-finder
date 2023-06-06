@@ -63,43 +63,69 @@ export class App extends Component {
     window.addEventListener('keydown', this.handleKeyDown);
   }
 
-  async componentDidUpdate(_, prevState) {  //_  -  заміна пустому prevProps
+  async componentDidUpdate(_, prevState) {
     
     if (this.state.currentSearch === prevState.currentSearch
       && this.state.page === prevState.page) return;
     
-    if (this.state.currentSearch !== prevState.currentSearch) {
-      if (this.state.currentSearch.trim() === '') {
-        this.setState({ isLoading: false })
-        return
-      } else {
-        this.setState({ isLoading: true }); 
-      }
+    const currentPage = (this.state.page !== prevState.page) ? this.state.page : 1;
+    
+    if (this.state.currentSearch.trim() === '') {
+      this.setState({ isLoading: false });
+      return;
+    } else {
+      this.setState({ isLoading: true }); 
+    }
         
-      const response = await fetchImages(this.state.currentSearch, 1);
+    const response = await fetchImages(this.state.currentSearch, currentPage);
+    this.setState({
+      isLoading: false,
+    });
+    
+    if (currentPage === 1){
       this.setState({
         images: response,
-        isLoading: false,
         page: 1,
+      });
+    } else {
+      this.setState({
+        images: [...this.state.images, ...response],
       });
     }
     
-    if (this.state.page !== prevState.page) {
-      const response = await fetchImages(
-        this.state.currentSearch,
-        this.state.page
-      );
-      this.setState({
-        images: [...this.state.images, ...response],
-        isLoading: false,
-      });
-    }
-  }
+    
+    // if (this.state.currentSearch !== prevState.currentSearch) {
+    //   if (this.state.currentSearch.trim() === '') {
+    //     this.setState({ isLoading: false })
+    //     return
+    //   } else {
+    //     this.setState({ isLoading: true }); 
+    //   }
+        
+    //   const response = await fetchImages(this.state.currentSearch, 1);
+    //   this.setState({
+    //     images: response,
+    //     isLoading: false,
+    //     page: 1,
+    //   });
+    // }
+    
+    // if (this.state.page !== prevState.page) {
+    //   const response = await fetchImages(
+    //     this.state.currentSearch,
+    //     this.state.page
+    //   );
+    //   this.setState({
+    //     images: [...this.state.images, ...response],
+    //     isLoading: false,
+    //   });
+    // }
+  };
 
   componentWillUnmount() {
     window.removeEventListener('keydown', this.handleKeyDown);
     localStorage.removeItem('totalHits');
-  }
+};
 
   render() {
     return (
